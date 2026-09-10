@@ -30,6 +30,13 @@
 				// DARKPACK TODO - FRENZY - tgui_input, yes or no to continue feeding in spite of the prey being excluded, if so, frenzy and path/humanity hit
 				return
 
+			// anthropic taste flaw
+			if(HAS_TRAIT(src, TRAIT_ANTHROPIC_TASTE) && istype(bit_living, /mob/living/basic))
+				SEND_SOUND(src, sound('modular_darkpack/modules/blood_drinking/sounds/need_blood.ogg', volume = 75))
+				to_chat(src, span_warning("You despise this kind of prey."))
+				// DARKPACK TODO - FRENZY - tgui_input, yes or no to continue feeding in spite of the prey being excluded, if so, frenzy and path/humanity hit
+				return
+
 			// victim of the masquerade flaw
 			if(HAS_TRAIT(src, TRAIT_VICTIM_OF_THE_MASQUERADE))
 				var/datum/quirk/darkpack/victim_of_the_masquerade/votm = src.get_quirk(/datum/quirk/darkpack/victim_of_the_masquerade)
@@ -62,6 +69,13 @@
 				SEND_SOUND(src, sound('modular_darkpack/modules/blood_drinking/sounds/need_blood.ogg', volume = 75))
 				return
 
+			// Thirst Of Ages flaw.
+			if(HAS_TRAIT(src, TRAIT_THIRST_OF_AGES))
+				if(!get_full_splat(bit_living))
+					to_chat(src, span_warning("Their blood isn't potent enough!"))
+					SEND_SOUND(src, sound('modular_darkpack/modules/blood_drinking/sounds/need_blood.ogg', volume = 75))
+					return
+
 			if(get_kindred_splat(src))
 				bit_living.emote("groan")
 			else if(get_ghoul_splat(src))
@@ -77,11 +91,13 @@
 					trigger_kindred_frenzy(bit_living, 6, 0, "The taste of blood while hungry")
 
 				if(!HAS_TRAIT(src, TRAIT_BLOODY_LOVER))
-					playsound(src, 'modular_darkpack/modules/blood_drinking/sounds/drinkblood1.ogg', 50, TRUE)
+					playsound(src, 'modular_darkpack/modules/blood_drinking/sounds/drinkblood1.ogg', 30, TRUE) // CRIMSON EDIT CHANGE - ORIGINAL: playsound(src, 'modular_darkpack/modules/blood_drinking/sounds/drinkblood1.ogg', 50, TRUE)
+
 					bit_living.visible_message(span_warning(span_bold("[src] bites [bit_living]'s neck!")), span_warning(span_bold("[src] bites your neck!")))
 				if(!HAS_TRAIT(src, TRAIT_BLOODY_LOVER))
 					SEND_SIGNAL(src, COMSIG_MASQUERADE_VIOLATION)
 				else
 					playsound(src, 'modular_darkpack/modules/blood_drinking/sounds/kiss.ogg', 50, TRUE)
 					bit_living.visible_message(span_italics(span_bold("[src] kisses [bit_living]!")), span_userlove(span_bold("[src] kisses you!")))
+				log_combat(src, bit_living, "bit and is drinking blood from", "Drinker bloodpool : [bloodpool] ,  Victim bloodpool : [bit_living.bloodpool]")
 				drinksomeblood(bit_living, TRUE)
